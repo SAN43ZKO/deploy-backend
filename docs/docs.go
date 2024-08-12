@@ -18,7 +18,7 @@ const docTemplate = `{
     "paths": {
         "/auth/login": {
             "get": {
-                "description": "Redirects the client to the Steam authentication page using the Steam API 123321312.",
+                "description": "Redirects the client to the Steam authentication page using the Steam API.",
                 "consumes": [
                     "application/json"
                 ],
