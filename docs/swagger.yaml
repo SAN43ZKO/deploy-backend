@@ -1,0 +1,135 @@
+definitions:
+  model.JWT:
+    properties:
+      access_token:
+        type: string
+      id:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  model.Profile:
+    properties:
+      avatar:
+        type: string
+      deaths:
+        type: integer
+      headshot_rate:
+        type: integer
+      id:
+        type: string
+      kills:
+        type: integer
+      name:
+        type: string
+      url:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/login:
+    get:
+      consumes:
+      - application/json
+      description: Redirects the client to the Steam authentication page using the
+        Steam API.
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Found
+        "405":
+          description: Method Not Allowed
+      summary: Redirects the client to the Steam authentication page.
+      tags:
+      - auth
+  /auth/process:
+    get:
+      consumes:
+      - application/json
+      description: Validates the Steam authentication response and generates JWT tokens.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.JWT'
+        "400":
+          description: Bad Request
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Processes the Steam authentication response and generates JWT tokens.
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Refreshes the JWT tokens based on the provided steam_id. Requires
+        a valid JWT refresh token.
+      parameters:
+      - description: Steam ID
+        in: formData
+        name: steam_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.JWT'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Refreshes the JWT tokens.
+      tags:
+      - auth
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Fetches the Steam user profile based on the provided steam_id.
+        Requires a valid JWT token.
+      parameters:
+      - description: Steam ID
+        in: query
+        name: steam_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Profile'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Retrieves the Steam user profile.
+      tags:
+      - profile
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
