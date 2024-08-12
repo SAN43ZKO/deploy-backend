@@ -17,6 +17,7 @@ jobs:
       - run: chmod 600 "$HOME/.ssh/key"
       # Deploy
       - run: rsync -e "ssh -p 22 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress . web@san43z.ru:/home/web/develop.san43z.ru/public_html/backend/backend
+      - script: |
         echo PG_DBNAME=${{ secrets.PG_DBNAME }} > .env
         echo PG_PASS=${{ secrets.PG_PASS }} >> .env
         echo PG_USER=${{ secrets.PG_USER }} >> .env
