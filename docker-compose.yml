@@ -4,17 +4,19 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
+    network_mode: "host"
     env_file:
       - .env
     depends_on:
       - postgres
     ports:
-      - 4000:4000
+      - 8002:8002
     restart: unless-stopped
 
   postgres:
     image: postgres:alpine
     container_name: postgres
+    network_mode: "host"
     env_file:
       - .env
     environment:
@@ -24,3 +26,14 @@ services:
     ports:
       - 5432:5432
     restart: unless-stopped
+
+  nginx:
+    image: san43zko/nginx-1.26.1-ssl
+    container_name: nginx
+    network_mode: "host"
+    volumes:
+      - /etc/nginx/sites-available/develop.san43z.ru:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt/archive/develop.san43z.ru/fullchain2.pem:/etc/nginx/fullchain.pem
+      - /etc/letsencrypt/archive/develop.san43z.ru/privkey2.pem:/etc/nginx/privkey.pem
+    ports:
+      - 443:443

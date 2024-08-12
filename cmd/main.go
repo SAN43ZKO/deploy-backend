@@ -51,7 +51,7 @@ func run() error {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /swagger/*", swagger.Handler(swagger.URL(cfg.Swagger.URL)))
+	mux.HandleFunc("GET /api/swagger/*", swagger.Handler(swagger.URL(cfg.Swagger.URL)))
 
 	mux.HandleFunc("GET /auth/login", middleware.Log(auth.Login))
 	mux.HandleFunc("GET /auth/process", middleware.Log(auth.ProcessLogin))
