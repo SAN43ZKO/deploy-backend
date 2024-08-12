@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   nginx:
-    image: san43zko/nginx-1.26.1-ssl
+    image: san43zko/nginx-1.26.1-ssl:latest
     container_name: nginx
     network_mode: "host"
     volumes:
