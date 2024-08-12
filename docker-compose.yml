@@ -27,13 +27,13 @@ services:
       - 5432:5432
     restart: unless-stopped
 
-  # nginx:
-  #   image: san43zko/nginx-1.26.1-ssl:latest
-  #   container_name: nginx
-  #   network_mode: "host"
-  #   volumes:
-  #     - /etc/nginx/sites-available/develop.san43z.ru.conf:/etc/nginx/conf.d/default.conf
-  #     - /etc/letsencrypt/archive/develop.san43z.ru/fullchain2.pem:/etc/nginx/fullchain.pem
-  #     - /etc/letsencrypt/archive/develop.san43z.ru/privkey2.pem:/etc/nginx/privkey.pem
-  #   ports:
-  #     - 443:443
+  nginx:
+    image: san43zko/nginx-1.26.1-ssl:latest
+    container_name: nginx
+    network_mode: "host"
+    volumes:
+      - /etc/nginx/sites-available/develop.san43z.ru.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt/archive/develop.san43z.ru/fullchain2.pem:/etc/nginx/fullchain.pem
+      - /etc/letsencrypt/archive/develop.san43z.ru/privkey2.pem:/etc/nginx/privkey.pem
+    ports:
+      - 443:443
