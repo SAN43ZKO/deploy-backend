@@ -18,9 +18,9 @@ services:
     container_name: postgres
     network_mode: "host"
     environment:
-      POSTGRES_USER: ${PG_USER}
-      POSTGRES_PASSWORD: ${PG_PASS}
-      POSTGRES_DB: ${PG_DBNAME}
+      POSTGRES_USER: $PG_USER
+      POSTGRES_PASSWORD: $PG_PASS
+      POSTGRES_DB: $PG_DBNAME
     ports:
       - 5432:5432
     restart: unless-stopped
