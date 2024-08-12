@@ -18,4 +18,4 @@ jobs:
       # Deploy
       - run: rsync -e "ssh -p 22 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress . web@san43z.ru:/home/web/develop.san43z.ru/public_html/backend/backend
       - run: docker compose stop
-      - run: docker-compose up --build -d
+      - run: docker compose up --build -d
