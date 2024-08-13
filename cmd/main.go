@@ -1,3 +1,5 @@
+// @title Backend API
+// @version 1.0
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
@@ -50,14 +52,15 @@ func run() error {
 	auth := api.NewAuthAPI(cfg, logger, jwt, service.NewAuthService(storage.NewAuthStorage(db)))
 
 	mux := http.NewServeMux()
+	corsMux := middleware.CORS(mux)
 
 	mux.HandleFunc("GET /api/swagger/*", swagger.Handler(swagger.URL(cfg.Swagger.URL)))
 
-	mux.HandleFunc("GET /auth/login", middleware.Log(auth.Login))
-	mux.HandleFunc("GET /auth/process", middleware.Log(auth.ProcessLogin))
-	mux.HandleFunc("POST /auth/refresh", jwt.Auth(middleware.Log(auth.RefreshToken)))
+	mux.HandleFunc("GET /api/auth/login", middleware.Log(auth.Login))
+	mux.HandleFunc("GET /api/auth/process", middleware.Log(auth.ProcessLogin))
+	mux.HandleFunc("POST /api/auth/refresh", jwt.Auth(middleware.Log(auth.RefreshToken)))
 
-	mux.HandleFunc("GET /profile", jwt.Auth(middleware.Log(auth.GetProfile)))
+	mux.HandleFunc("GET /api/profile/{id}", jwt.Auth(middleware.Log(auth.GetProfile)))
 
 	var (
 		sigCh = make(chan os.Signal, 1)
@@ -68,7 +71,7 @@ func run() error {
 
 	s := &http.Server{
 		Addr:         cfg.HTTP.Host + ":" + cfg.HTTP.Port,
-		Handler:      mux,
+		Handler:      corsMux,
 		ReadTimeout:  cfg.HTTP.ReadTimeout,
 		WriteTimeout: cfg.HTTP.WriteTimeout,
 	}

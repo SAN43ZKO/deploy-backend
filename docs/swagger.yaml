@@ -7,6 +7,10 @@ definitions:
         type: string
       refresh_token:
         type: string
+    required:
+    - access_token
+    - id
+    - refresh_token
     type: object
   model.Profile:
     properties:
@@ -24,16 +28,34 @@ definitions:
         type: string
       url:
         type: string
+    required:
+    - avatar
+    - deaths
+    - headshot_rate
+    - id
+    - kills
+    - name
+    - url
+    type: object
+  render.Err:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    required:
+    - code
+    - message
     type: object
 info:
   contact: {}
+  title: Backend API
+  version: "1.0"
 paths:
-  /auth/login:
+  /api/auth/login:
     get:
       consumes:
       - application/json
-      description: Redirects the client to the Steam authentication page using the
-        Steam API.
       produces:
       - application/json
       responses:
@@ -41,14 +63,15 @@ paths:
           description: Found
         "405":
           description: Method Not Allowed
-      summary: Redirects the client to the Steam authentication page.
+          schema:
+            $ref: '#/definitions/render.Err'
+      summary: Redirects client to Steam authentication page
       tags:
       - auth
-  /auth/process:
+  /api/auth/process:
     get:
       consumes:
       - application/json
-      description: Validates the Steam authentication response and generates JWT tokens.
       produces:
       - application/json
       responses:
@@ -58,23 +81,25 @@ paths:
             $ref: '#/definitions/model.JWT'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/render.Err'
         "405":
           description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/render.Err'
         "500":
           description: Internal Server Error
-      summary: Processes the Steam authentication response and generates JWT tokens.
+          schema:
+            $ref: '#/definitions/render.Err'
+      summary: Processes Steam authentication response and generates JWT tokens
       tags:
       - auth
-  /auth/refresh:
+  /api/auth/refresh:
     post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Refreshes the JWT tokens based on the provided steam_id. Requires
-        a valid JWT refresh token.
       parameters:
-      - description: Steam ID
+      - description: User ID
         in: formData
-        name: steam_id
+        name: id
         required: true
         type: string
       produces:
@@ -86,27 +111,33 @@ paths:
             $ref: '#/definitions/model.JWT'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/render.Err'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/render.Err'
         "405":
           description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/render.Err'
         "500":
           description: Internal Server Error
+          schema:
+            $ref: '#/definitions/render.Err'
       security:
       - BearerAuth: []
-      summary: Refreshes the JWT tokens.
+      summary: Refreshes JWT tokens
       tags:
       - auth
-  /profile:
+  /api/profile/{id}:
     get:
       consumes:
       - application/json
-      description: Fetches the Steam user profile based on the provided steam_id.
-        Requires a valid JWT token.
       parameters:
-      - description: Steam ID
-        in: query
-        name: steam_id
+      - description: User ID
+        in: path
+        name: id
         required: true
         type: string
       produces:
@@ -118,13 +149,19 @@ paths:
             $ref: '#/definitions/model.Profile'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/render.Err'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/render.Err'
         "500":
           description: Internal Server Error
+          schema:
+            $ref: '#/definitions/render.Err'
       security:
       - BearerAuth: []
-      summary: Retrieves the Steam user profile.
+      summary: Retrieves user profile
       tags:
       - profile
 securityDefinitions:

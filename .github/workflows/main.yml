@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to Docker
 
 on:
   push:
@@ -8,17 +8,29 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      # Setup key
-      - run: set -eu
-      - run: mkdir "$HOME/.ssh"
-      - run: echo "${{ secrets.key }}" > "$HOME/.ssh/key"
-      - run: chmod 600 "$HOME/.ssh/key"
-      # Deploy
-      - run: rsync -e "ssh -p 22 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress . web@san43z.ru:/home/web/develop.san43z.ru/public_html/backend/backend
-      - run: echo PG_DBNAME=${{ secrets.PG_DBNAME }} > .env
-      - run: echo PG_PASS=${{ secrets.PG_PASS }} >> .env
-      - run: echo PG_USER=${{ secrets.PG_USER }} >> .env
-      - run: chmod +x deploy.sh
-      - run: sh deploy.sh
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Transfer source code to server
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "/develop.san43z.ru/public_html/backend"
+
+      - name: Build and run Docker container on server
+        uses: appleboy/ssh-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /develop.san43z.ru/public_html/backend
+            echo PG_DBNAME=${{ secrets.PG_DBNAME }} > .env
+            echo PG_PASS=${{ secrets.PG_PASS }} >> .env
+            echo PG_USER=${{ secrets.PG_USER }} >> .env
+            docker compose up --build -d

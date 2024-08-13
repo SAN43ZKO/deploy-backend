@@ -31,7 +31,5 @@ JWT_KEY="verysecretkey"
 
 STEAM_API_KEY=apikey #https://steamcommunity.com/dev/apikey
 
-SWAGGER_HOST=localhost
-SWAGGER_PORT=${HTTP_PORT}
-SWAGGER_URL=http://${SWAGGER_HOST}:${SWAGGER_PORT}/swagger/doc.json
+SWAGGER_URL=/api/swagger/doc.json
 ```

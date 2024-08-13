@@ -16,9 +16,8 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login": {
+        "/api/auth/login": {
             "get": {
-                "description": "Redirects the client to the Steam authentication page using the Steam API 123HUY.",
                 "consumes": [
                     "application/json"
                 ],
@@ -28,20 +27,22 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Redirects the client to the Steam authentication page.",
+                "summary": "Redirects client to Steam authentication page",
                 "responses": {
                     "302": {
                         "description": "Found"
                     },
                     "405": {
-                        "description": "Method Not Allowed"
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     }
                 }
             }
         },
-        "/auth/process": {
+        "/api/auth/process": {
             "get": {
-                "description": "Validates the Steam authentication response and generates JWT tokens.",
                 "consumes": [
                     "application/json"
                 ],
@@ -51,7 +52,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Processes the Steam authentication response and generates JWT tokens.",
+                "summary": "Processes Steam authentication response and generates JWT tokens",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -60,27 +61,32 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request"
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     },
                     "405": {
-                        "description": "Method Not Allowed"
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     },
                     "500": {
-                        "description": "Internal Server Error"
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     }
                 }
             }
         },
-        "/auth/refresh": {
+        "/api/auth/refresh": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
-                "description": "Refreshes the JWT tokens based on the provided steam_id. Requires a valid JWT refresh token.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
@@ -88,12 +94,12 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Refreshes the JWT tokens.",
+                "summary": "Refreshes JWT tokens",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Steam ID",
-                        "name": "steam_id",
+                        "description": "User ID",
+                        "name": "id",
                         "in": "formData",
                         "required": true
                     }
@@ -106,28 +112,39 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request"
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     },
                     "401": {
-                        "description": "Unauthorized"
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     },
                     "405": {
-                        "description": "Method Not Allowed"
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     },
                     "500": {
-                        "description": "Internal Server Error"
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     }
                 }
             }
         },
-        "/profile": {
+        "/api/profile/{id}": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Fetches the Steam user profile based on the provided steam_id. Requires a valid JWT token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -137,13 +154,13 @@ const docTemplate = `{
                 "tags": [
                     "profile"
                 ],
-                "summary": "Retrieves the Steam user profile.",
+                "summary": "Retrieves user profile",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Steam ID",
-                        "name": "steam_id",
-                        "in": "query",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -155,13 +172,22 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request"
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     },
                     "401": {
-                        "description": "Unauthorized"
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     },
                     "500": {
-                        "description": "Internal Server Error"
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/render.Err"
+                        }
                     }
                 }
             }
@@ -170,6 +196,11 @@ const docTemplate = `{
     "definitions": {
         "model.JWT": {
             "type": "object",
+            "required": [
+                "access_token",
+                "id",
+                "refresh_token"
+            ],
             "properties": {
                 "access_token": {
                     "type": "string"
@@ -184,6 +215,15 @@ const docTemplate = `{
         },
         "model.Profile": {
             "type": "object",
+            "required": [
+                "avatar",
+                "deaths",
+                "headshot_rate",
+                "id",
+                "kills",
+                "name",
+                "url"
+            ],
             "properties": {
                 "avatar": {
                     "type": "string"
@@ -207,6 +247,21 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "render.Err": {
+            "type": "object",
+            "required": [
+                "code",
+                "message"
+            ],
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -220,11 +275,11 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
+	Title:            "Backend API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

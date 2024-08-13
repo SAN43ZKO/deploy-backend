@@ -16,13 +16,13 @@ type PlayerResponse struct {
 }
 
 type Profile struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	URL          string `json:"url"`
-	Avatar       string `json:"avatar"`
-	Kills        int    `json:"kills"`
-	Deaths       int    `json:"deaths"`
-	HeadshotRate int    `json:"headshot_rate"`
+	ID           string `json:"id" validate:"required"`
+	Name         string `json:"name" validate:"required"`
+	URL          string `json:"url" validate:"required"`
+	Avatar       string `json:"avatar" validate:"required"`
+	Kills        int    `json:"kills" validate:"required"`
+	Deaths       int    `json:"deaths" validate:"required"`
+	HeadshotRate int    `json:"headshot_rate" validate:"required"`
 }
 
 type Stats struct {
@@ -37,7 +37,7 @@ type JWTClaims struct {
 }
 
 type JWT struct {
-	ID           string `json:"id"`
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	ID           string `json:"id" validate:"required"`
+	AccessToken  string `json:"access_token" validate:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required"`
 }

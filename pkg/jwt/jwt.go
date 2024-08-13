@@ -8,8 +8,13 @@ import (
 	"time"
 
 	m "github.com/cs2-server/backend/internal/model"
+	"github.com/cs2-server/backend/internal/render"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
+)
+
+var (
+	ErrTokenExpired = errors.New("token has expired")
 )
 
 type JWT struct {
@@ -27,14 +32,21 @@ func (t *JWT) Auth(next http.HandlerFunc) http.HandlerFunc {
 		tokenString, err := getTokenFromHeader(r)
 		if err != nil {
 			logrus.Errorln("JWT (1):", err)
-			w.WriteHeader(http.StatusUnauthorized)
+			render.Error(w, http.StatusUnauthorized, err.Error())
 
 			return
 		}
 
 		if err := t.verifyToken(tokenString); err != nil {
 			logrus.Errorln("JWT (2): ", err)
-			w.WriteHeader(http.StatusUnauthorized)
+
+			if errors.Is(err, ErrTokenExpired) {
+				render.Error(w, http.StatusUnauthorized, err.Error(), render.ExpiredToken)
+
+				return
+			}
+
+			render.Error(w, http.StatusUnauthorized, err.Error())
 
 			return
 		}
@@ -45,8 +57,8 @@ func (t *JWT) Auth(next http.HandlerFunc) http.HandlerFunc {
 
 func (t *JWT) GenerateTokens(id string) (m.JWT, error) {
 	var (
-		accessExpTime  = time.Now().Add(15 * time.Minute)
-		refreshExpTime = time.Now().Add(24 * time.Hour)
+		accessExpTime  = time.Now().Add(24 * time.Hour)
+		refreshExpTime = time.Now().AddDate(0, 1, 0)
 	)
 
 	accessClaims := &m.JWTClaims{
@@ -87,28 +99,23 @@ func (t *JWT) GenerateTokens(id string) (m.JWT, error) {
 }
 
 func (t *JWT) verifyToken(signedToken string) error {
-	token, err := jwt.ParseWithClaims(signedToken, &m.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("VerifyToken (1): unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(t.key), nil
 	})
 	if err != nil {
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors&jwt.ValidationErrorExpired != 0 {
+				return fmt.Errorf("VerifyToken (1): %w", ErrTokenExpired)
+			}
+		}
 		return fmt.Errorf("VerifyToken (2): %w", err)
 	}
 
 	if !token.Valid {
 		return errors.New("VerifyToken (3): invalid token")
-	}
-
-	claims, ok := token.Claims.(*m.JWTClaims)
-	if !ok {
-		return errors.New("VerifyToken (4): invalid token claims")
-	}
-
-	now := time.Now().Unix()
-	if claims.ExpiresAt < now {
-		return errors.New("VerifyToken (5): token has expired")
 	}
 
 	return nil
