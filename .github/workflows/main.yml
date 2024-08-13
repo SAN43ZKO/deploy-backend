@@ -24,7 +24,7 @@ jobs:
           target: "/home/web/develop.san43z.ru/public_html/backend"
 
       - name: Build and run Docker container on server
-        uses: appleboy/ssh-action@v0.1.0
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
