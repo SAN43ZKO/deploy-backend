@@ -16,6 +16,11 @@ jobs:
       - name: Transfer source code to server
         uses: appleboy/scp-action@v0.1.0
         with:
+          script: |
+            set -eu
+            mkdir "$HOME/.ssh"
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/key
+            chmod 600 "$HOME/.ssh/key"
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
