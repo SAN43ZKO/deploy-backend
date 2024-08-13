@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /develop.san43z.ru/public_html/backend
+            cd /home/web/develop.san43z.ru/public_html/backend
             echo PG_DBNAME=${{ secrets.PG_DBNAME }} > .env
             echo PG_PASS=${{ secrets.PG_PASS }} >> .env
             echo PG_USER=${{ secrets.PG_USER }} >> .env
