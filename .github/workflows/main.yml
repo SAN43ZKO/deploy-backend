@@ -33,4 +33,5 @@ jobs:
             echo PG_DBNAME=${{ secrets.PG_DBNAME }} > .env
             echo PG_PASS=${{ secrets.PG_PASS }} >> .env
             echo PG_USER=${{ secrets.PG_USER }} >> .env
+            docker compose stop
             docker compose up --build -d
