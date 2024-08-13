@@ -27,7 +27,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Redirects client to Steam authentication page",
+                "summary": "Redirects client to Steam authentication page 123",
                 "responses": {
                     "302": {
                         "description": "Found"
