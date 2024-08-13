@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
-          target: "/develop.san43z.ru/public_html/backend"
+          target: "/home/web/develop.san43z.ru/public_html/backend"
 
       - name: Build and run Docker container on server
         uses: appleboy/ssh-action@v0.1.0
